@@ -863,49 +863,45 @@
         }
 
         function seekAudio(event, sampleId) {
-            event.preventDefault(); // Prevent default behavior
-            event.stopPropagation(); // Stop event propagation
+            event.preventDefault();
+            event.stopPropagation();
 
             const audio = document.getElementById(`audio-${sampleId}`);
-            if (!audio) return;
+            if (!audio || !audio.duration) return;
 
             const timeline = event.currentTarget;
             const rect = timeline.getBoundingClientRect();
-            const pos = (event.clientX - rect.left) / rect.width;
             
-            // Add seeking class for visual feedback
-            timeline.classList.add('seeking');
+            // Get the exact click position relative to the timeline's left edge
+            const clickX = event.clientX - rect.left;
             
-            // Update the progress bar immediately
+            // Calculate percentage (0 to 1) based on the timeline's width
+            const percentage = clickX / rect.width;
+            
+            // Calculate the exact time in seconds
+            const newTime = percentage * audio.duration;
+            
+            // Update UI
             const progress = timeline.querySelector('.playing-sound-progress');
-            if (progress) {
-                progress.style.width = `${pos * 100}%`;
-            }
-
-            // Update the time display immediately
             const timeDisplay = timeline.closest('.playing-sound-controls').querySelector('.playing-sound-time');
+            
+            if (progress) {
+                progress.style.width = `${percentage * 100}%`;
+            }
+            
             if (timeDisplay) {
-                const newTime = pos * audio.duration;
                 timeDisplay.textContent = `${formatTime(newTime)} / ${formatTime(audio.duration)}`;
             }
 
-            // Set the new time
-            audio.currentTime = pos * audio.duration;
+            // Set the audio time
+            audio.currentTime = newTime;
 
-            // If the audio was playing before seeking, continue playing
+            // If audio was playing, ensure it continues
             if (!audio.paused) {
-                const playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(error => {
-                        console.error('Error resuming playback:', error);
-                    });
-                }
+                audio.play().catch(error => {
+                    console.error('Error resuming playback:', error);
+                });
             }
-
-            // Remove seeking class after a short delay
-            setTimeout(() => {
-                timeline.classList.remove('seeking');
-            }, 200);
         }
 
         function playSound(sample) {
@@ -1006,9 +1002,9 @@
 
         function formatTime(seconds) {
             if (isNaN(seconds)) return '0:00';
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${m}:${s.toString().padStart(2, '0')}`;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
 
         function stopAudio() {
