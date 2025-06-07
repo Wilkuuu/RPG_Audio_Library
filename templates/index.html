@@ -769,43 +769,76 @@
             }
             lastUpdateTime = now;
 
-            playingSounds.innerHTML = Array.from(currentlyPlaying.entries())
-                .map(([id, name]) => {
-                    const sample = samplesCache.find(s => s._id === id);
-                    const audio = document.getElementById(`audio-${id}`);
-                    if (!audio) return '';
+            // Get current playing sounds
+            const currentSounds = Array.from(currentlyPlaying.entries());
+            
+            // Update existing elements or create new ones
+            currentSounds.forEach(([id, name]) => {
+                const sample = samplesCache.find(s => s._id === id);
+                const audio = document.getElementById(`audio-${id}`);
+                if (!audio) return;
 
-                    const isPaused = audio.paused;
-                    const progress = (audio.currentTime / audio.duration) * 100 || 0;
+                const isPaused = audio.paused;
+                const progress = (audio.currentTime / audio.duration) * 100 || 0;
 
-                    return `
-                        <div class="playing-sound-item" data-id="${id}">
-                            <div class="playing-sound-header">
-                                <div class="playing-sound-info">
-                                    <div class="playing-sound-name">${name}</div>
-                                    <div class="playing-sound-category">${sample ? sample.category : ''}</div>
-                                </div>
-                                <div class="playing-sound-buttons">
-                                    <button class="playing-sound-button ${isPaused ? '' : 'active'}" 
-                                            onclick="togglePlayPause('${id}')">
-                                        <i class="fas fa-${isPaused ? 'play' : 'pause'}"></i>
-                                    </button>
-                                    <button class="playing-sound-button danger" onclick="stopSound('${id}')">
-                                        <i class="fas fa-stop"></i>
-                                    </button>
-                                </div>
+                // Check if element already exists
+                let soundItem = document.querySelector(`.playing-sound-item[data-id="${id}"]`);
+                
+                if (!soundItem) {
+                    // Create new element if it doesn't exist
+                    soundItem = document.createElement('div');
+                    soundItem.className = 'playing-sound-item';
+                    soundItem.setAttribute('data-id', id);
+                    soundItem.innerHTML = `
+                        <div class="playing-sound-header">
+                            <div class="playing-sound-info">
+                                <div class="playing-sound-name">${name}</div>
+                                <div class="playing-sound-category">${sample ? sample.category : ''}</div>
                             </div>
-                            <div class="playing-sound-controls">
-                                <div class="playing-sound-timeline" onclick="seekAudio(event, '${id}')">
-                                    <div class="playing-sound-progress" style="width: ${progress}%"></div>
-                                </div>
-                                <div class="playing-sound-time">
-                                    ${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}
-                                </div>
+                            <div class="playing-sound-buttons">
+                                <button class="playing-sound-button ${isPaused ? '' : 'active'}" 
+                                        onclick="togglePlayPause('${id}')">
+                                    <i class="fas fa-${isPaused ? 'play' : 'pause'}"></i>
+                                </button>
+                                <button class="playing-sound-button danger" onclick="stopSound('${id}')">
+                                    <i class="fas fa-stop"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="playing-sound-controls">
+                            <div class="playing-sound-timeline" onclick="seekAudio(event, '${id}')">
+                                <div class="playing-sound-progress" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="playing-sound-time">
+                                ${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}
                             </div>
                         </div>
                     `;
-                }).join('');
+                    playingSounds.appendChild(soundItem);
+                } else {
+                    // Only update the progress bar and time
+                    const progressBar = soundItem.querySelector('.playing-sound-progress');
+                    const timeDisplay = soundItem.querySelector('.playing-sound-time');
+                    const playButton = soundItem.querySelector('.playing-sound-button');
+                    const playIcon = playButton.querySelector('i');
+
+                    if (progressBar) progressBar.style.width = `${progress}%`;
+                    if (timeDisplay) timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+                    if (playButton) {
+                        playButton.className = `playing-sound-button ${isPaused ? '' : 'active'}`;
+                        playIcon.className = `fas fa-${isPaused ? 'play' : 'pause'}`;
+                    }
+                }
+            });
+
+            // Remove elements for sounds that are no longer playing
+            const currentIds = currentSounds.map(([id]) => id);
+            document.querySelectorAll('.playing-sound-item').forEach(item => {
+                const id = item.getAttribute('data-id');
+                if (!currentIds.includes(id)) {
+                    item.remove();
+                }
+            });
         }
 
         function togglePlayPause(sampleId) {
