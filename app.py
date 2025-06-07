@@ -75,14 +75,36 @@ def get_sample(sample_id):
 
 @app.route('/api/samples/<sample_id>', methods=['PUT'])
 def update_sample(sample_id):
-    data = request.json
-    result = samples_collection.update_one(
-        {'_id': sample_id},
-        {'$set': data}
-    )
-    if result.modified_count:
-        return jsonify({'message': 'Sample updated successfully'})
-    return jsonify({'error': 'Sample not found'}), 404
+    try:
+        data = request.json
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
+        # Convert string ID to ObjectId
+        from bson.objectid import ObjectId
+        sample_id = ObjectId(sample_id)
+
+        # Update the sample in MongoDB
+        result = samples_collection.update_one(
+            {'_id': sample_id},
+            {'$set': {
+                'name': data.get('name'),
+                'category': data.get('category'),
+                'is_one_shot': data.get('is_one_shot', False)
+            }}
+        )
+
+        if result.modified_count == 0:
+            return jsonify({'error': 'Sample not found or no changes made'}), 404
+
+        # Get the updated sample
+        updated_sample = samples_collection.find_one({'_id': sample_id})
+        updated_sample['_id'] = str(updated_sample['_id'])
+
+        return jsonify(updated_sample), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/samples/<sample_id>', methods=['DELETE'])
 def delete_sample(sample_id):

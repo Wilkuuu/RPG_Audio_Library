@@ -15,6 +15,7 @@
             --success-color: #2ecc71;
             --warning-color: #f1c40f;
             --danger-color: #e74c3c;
+            --sidebar-width: 300px;
         }
 
         body {
@@ -22,6 +23,7 @@
             color: var(--text-color);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-right: var(--sidebar-width);
         }
 
         .navbar {
@@ -109,6 +111,21 @@
             gap: 15px;
         }
 
+        .element-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-icon:hover {
+            transform: translateY(-1px);
+        }
+
         .circular-progress {
             position: relative;
             width: 40px;
@@ -192,26 +209,45 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        .master-controls {
+        .right-sidebar {
             position: fixed;
-            bottom: 0;
-            left: 0;
+            top: 0;
             right: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
             background: rgba(26, 26, 26, 0.95);
-            padding: 20px;
-            z-index: 1000;
-            border-top: 2px solid var(--accent-color);
+            border-left: 2px solid var(--accent-color);
             backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-section h5 {
+            margin-bottom: 15px;
+            color: var(--accent-color);
         }
 
         .master-volume-container {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .master-volume-slider {
-            flex-grow: 1;
+            width: 100%;
             height: 6px;
             -webkit-appearance: none;
             background: rgba(255, 255, 255, 0.1);
@@ -233,8 +269,16 @@
             transform: scale(1.2);
         }
 
+        .volume-value {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
         .playing-sounds {
-            max-height: 150px;
+            flex-grow: 1;
             overflow-y: auto;
             padding-right: 10px;
         }
@@ -242,43 +286,131 @@
         .playing-sound-item {
             background: rgba(52, 152, 219, 0.1);
             border-radius: 6px;
-            padding: 8px 12px;
-            margin: 5px 0;
+            padding: 15px;
+            margin: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .playing-sound-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s;
         }
 
-        .playing-sound-item:hover {
-            background: rgba(52, 152, 219, 0.2);
+        .playing-sound-info {
+            flex-grow: 1;
+            margin-right: 10px;
         }
 
-        .btn {
-            border-radius: 6px;
-            padding: 8px 16px;
-            transition: all 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background: var(--accent-color);
-            border: none;
-            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #2980b9;
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
-        }
-
-        .badge {
-            padding: 5px 10px;
-            border-radius: 4px;
+        .playing-sound-name {
             font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .playing-sound-category {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .playing-sound-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .playing-sound-timeline {
+            flex-grow: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .playing-sound-timeline:hover {
+            height: 6px;
+        }
+
+        .playing-sound-timeline:hover .playing-sound-progress {
+            height: 6px;
+        }
+
+        .playing-sound-progress {
+            position: absolute;
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .playing-sound-timeline::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 12px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+
+        .playing-sound-timeline.seeking .playing-sound-progress {
+            background: #2980b9;
+        }
+
+        .playing-sound-time {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .playing-sound-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .playing-sound-button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+
+        .playing-sound-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .playing-sound-button.active {
+            background: var(--accent-color);
+        }
+
+        .playing-sound-button.danger {
+            background: var(--danger-color);
+        }
+
+        .playing-sound-button.danger:hover {
+            background: #c0392b;
+        }
+
+        .container {
+            max-width: calc(100% - var(--sidebar-width));
+        }
+
+        /* Remove the old master controls */
+        .master-controls {
+            display: none;
         }
 
         .nav-tabs .nav-link {
@@ -291,6 +423,60 @@
             background-color: var(--accent-color);
             color: white;
             border-radius: 4px;
+        }
+
+        .one-shot-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: var(--accent-color);
+            border: none;
+        }
+
+        .one-shot-button:hover {
+            transform: scale(1.1);
+            background: #2980b9;
+        }
+
+        .one-shot-button.active {
+            background: var(--danger-color);
+        }
+
+        .one-shot-button.active:hover {
+            background: #c0392b;
+        }
+
+        .alert-info {
+            background-color: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            color: var(--text-color);
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-top: 15px;
+        }
+
+        .section-title {
+            margin: 20px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title h4 {
+            color: var(--accent-color);
+            font-size: 1.2em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title h4 i {
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -313,6 +499,31 @@
             </div>
         </div>
     </nav>
+
+    <!-- Right Sidebar -->
+    <div class="right-sidebar">
+        <div class="sidebar-header">
+            <h4>Audio Controls</h4>
+        </div>
+        
+        <div class="sidebar-section">
+            <h5>Master Volume</h5>
+            <div class="master-volume-container">
+                <input type="range" class="master-volume-slider" id="masterVolume" min="0" max="100" value="100">
+                <div class="volume-value">
+                    <span>Volume</span>
+                    <span id="masterVolumeValue">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h5>Currently Playing</h5>
+            <div class="playing-sounds" id="playingSounds">
+                <!-- Playing sounds will be listed here -->
+            </div>
+        </div>
+    </div>
 
     <div class="container mt-4">
         <div class="tab-content">
@@ -341,27 +552,6 @@
                 </div>
                 <div class="row" id="scenesList">
                     <!-- Scenes will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Master Controls -->
-    <div class="master-controls">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-4">
-                    <div class="master-volume-container">
-                        <h5 class="mb-0">Master Volume</h5>
-                        <input type="range" class="master-volume-slider" id="masterVolume" min="0" max="100" value="100">
-                        <span id="masterVolumeValue">100%</span>
-                    </div>
-                </div>
-                <div class="col-md-8">
-                    <h5 class="mb-3">Currently Playing</h5>
-                    <div class="playing-sounds" id="playingSounds">
-                        <!-- Playing sounds will be listed here -->
-                    </div>
                 </div>
             </div>
         </div>
@@ -506,6 +696,45 @@
         </div>
     </div>
 
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Sound</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editSampleId" name="id">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control bg-dark text-light" id="editName" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select bg-dark text-light" id="editCategory" name="category" required>
+                                <option value="ambient">Ambient</option>
+                                <option value="battle">Battle</option>
+                                <option value="town">Town</option>
+                                <option value="dungeon">Dungeon</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="editIsOneShot" name="is_one_shot">
+                            <label class="form-check-label" for="editIsOneShot">One-shot sound</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="updateSample()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentlyPlaying = new Map();
@@ -532,14 +761,107 @@
 
         function updatePlayingSounds() {
             playingSounds.innerHTML = Array.from(currentlyPlaying.entries())
-                .map(([id, name]) => `
-                    <div class="playing-sound-item">
-                        <span>${name}</span>
-                        <button class="btn btn-sm btn-danger" onclick="stopSound('${id}')">
-                            <i class="fas fa-stop"></i>
-                        </button>
-                    </div>
-                `).join('');
+                .map(([id, name]) => {
+                    const sample = samplesCache.find(s => s._id === id);
+                    const audio = document.getElementById(`audio-${id}`);
+                    if (!audio) return '';
+
+                    const isPaused = audio.paused;
+                    const progress = (audio.currentTime / audio.duration) * 100 || 0;
+
+                    return `
+                        <div class="playing-sound-item" data-id="${id}">
+                            <div class="playing-sound-header">
+                                <div class="playing-sound-info">
+                                    <div class="playing-sound-name">${name}</div>
+                                    <div class="playing-sound-category">${sample ? sample.category : ''}</div>
+                                </div>
+                                <div class="playing-sound-buttons">
+                                    <button class="playing-sound-button ${isPaused ? '' : 'active'}" 
+                                            onclick="togglePlayPause('${id}')">
+                                        <i class="fas fa-${isPaused ? 'play' : 'pause'}"></i>
+                                    </button>
+                                    <button class="playing-sound-button danger" onclick="stopSound('${id}')">
+                                        <i class="fas fa-stop"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="playing-sound-controls">
+                                <div class="playing-sound-timeline" onclick="seekAudio(event, '${id}')">
+                                    <div class="playing-sound-progress" style="width: ${progress}%"></div>
+                                </div>
+                                <div class="playing-sound-time">
+                                    ${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+
+        function togglePlayPause(sampleId) {
+            const audio = document.getElementById(`audio-${sampleId}`);
+            if (!audio) return;
+
+            const sample = samplesCache.find(s => s._id === sampleId);
+            if (!sample) return;
+
+            if (audio.paused) {
+                // If it's a one-shot, stop other sounds
+                if (sample.is_one_shot) {
+                    stopAllSounds();
+                }
+                audio.play();
+            } else {
+                audio.pause();
+            }
+            updatePlayingSounds();
+        }
+
+        function seekAudio(event, sampleId) {
+            event.preventDefault(); // Prevent default behavior
+            event.stopPropagation(); // Stop event propagation
+
+            const audio = document.getElementById(`audio-${sampleId}`);
+            if (!audio) return;
+
+            const timeline = event.currentTarget;
+            const rect = timeline.getBoundingClientRect();
+            const pos = (event.clientX - rect.left) / rect.width;
+            
+            // Add seeking class for visual feedback
+            timeline.classList.add('seeking');
+            
+            // Update the progress bar immediately
+            const progress = timeline.querySelector('.playing-sound-progress');
+            if (progress) {
+                progress.style.width = `${pos * 100}%`;
+            }
+
+            // Update the time display immediately
+            const timeDisplay = timeline.closest('.playing-sound-controls').querySelector('.playing-sound-time');
+            if (timeDisplay) {
+                const newTime = pos * audio.duration;
+                timeDisplay.textContent = `${formatTime(newTime)} / ${formatTime(audio.duration)}`;
+            }
+
+            // Set the new time
+            audio.currentTime = pos * audio.duration;
+
+            // If the audio was playing before seeking, continue playing
+            if (!audio.paused) {
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.error('Error resuming playback:', error);
+                    });
+                }
+            }
+
+            // Remove seeking class after a short delay
+            setTimeout(() => {
+                timeline.classList.remove('seeking');
+            }, 200);
         }
 
         function playSound(sample) {
@@ -581,12 +903,29 @@
 
         function stopSound(sampleId) {
             const audio = document.getElementById(`audio-${sampleId}`);
-            if (audio) {
-                audio.pause();
-                audio.currentTime = 0;
-                currentlyPlaying.delete(sampleId);
-                updatePlayingSounds();
-                document.querySelector(`.element-card[data-id="${sampleId}"]`).classList.remove('playing');
+            if (!audio) return;
+
+            const sample = samplesCache.find(s => s._id === sampleId);
+            if (!sample) return;
+
+            // Stop the audio
+            audio.pause();
+            audio.currentTime = 0;
+            currentlyPlaying.delete(sampleId);
+            updatePlayingSounds();
+
+            // If it's a looping sound, uncheck the checkbox
+            if (!sample.is_one_shot) {
+                const checkbox = document.querySelector(`.element-list-item[data-id="${sampleId}"] .element-checkbox`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                }
+            } else {
+                // If it's a one-shot, remove active state from button
+                const button = document.querySelector(`.element-list-item[data-id="${sampleId}"] .one-shot-button`);
+                if (button) {
+                    button.classList.remove('active');
+                }
             }
         }
 
@@ -652,11 +991,31 @@
 
         function organizeSamplesByMood(samples) {
             const moods = {
-                'ambient': { title: 'Ambient', samples: [] },
-                'battle': { title: 'Battle', samples: [] },
-                'town': { title: 'Town', samples: [] },
-                'dungeon': { title: 'Dungeon', samples: [] },
-                'other': { title: 'Other', samples: [] }
+                'ambient': { 
+                    title: 'Ambient', 
+                    samples: [],
+                    oneShots: []
+                },
+                'battle': { 
+                    title: 'Battle', 
+                    samples: [],
+                    oneShots: []
+                },
+                'town': { 
+                    title: 'Town', 
+                    samples: [],
+                    oneShots: []
+                },
+                'dungeon': { 
+                    title: 'Dungeon', 
+                    samples: [],
+                    oneShots: []
+                },
+                'other': { 
+                    title: 'Other', 
+                    samples: [],
+                    oneShots: []
+                }
             };
 
             samples.forEach(sample => {
@@ -668,15 +1027,19 @@
                 else if (category.includes('town') || category.includes('city')) mood = 'town';
                 else if (category.includes('dungeon') || category.includes('cave')) mood = 'dungeon';
 
-                moods[mood].samples.push(sample);
+                if (sample.is_one_shot) {
+                    moods[mood].oneShots.push(sample);
+                } else {
+                    moods[mood].samples.push(sample);
+                }
             });
 
             return moods;
         }
 
         let activeSounds = new Map(); // Map to store active sound intervals
-        const DEFAULT_MIN_DELAY = 5;
-        const DEFAULT_MAX_DELAY = 400;
+        const DEFAULT_MIN_DELAY = 1;
+        const DEFAULT_MAX_DELAY = 15;
 
         function toggleSound(sample, isChecked) {
             const audio = document.getElementById(`audio-${sample._id}`);
@@ -738,6 +1101,43 @@
             }
         }
 
+        function toggleOneShot(sample) {
+            const audio = document.getElementById(`audio-${sample._id}`);
+            if (!audio) return;
+
+            const playButton = document.querySelector(`.element-list-item[data-id="${sample._id}"] .one-shot-button`);
+            const isPlaying = playButton.classList.contains('active');
+
+            if (isPlaying) {
+                // Stop the sound
+                audio.pause();
+                audio.currentTime = 0;
+                currentlyPlaying.delete(sample._id);
+                updatePlayingSounds();
+                playButton.classList.remove('active');
+            } else {
+                // Stop all other sounds
+                stopAllSounds();
+                
+                // Set volume from the slider
+                const volumeSlider = audio.closest('.element-list-item').querySelector('.element-volume');
+                audio.volume = (volumeSlider ? volumeSlider.value : 100) / 100;
+
+                // Play the sound
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        currentlyPlaying.set(sample._id, sample.name);
+                        updatePlayingSounds();
+                        playButton.classList.add('active');
+                    }).catch(error => {
+                        console.error('Playback failed:', error);
+                        playButton.classList.remove('active');
+                    });
+                }
+            }
+        }
+
         function updateCircularProgress(audio, progressId) {
             const progress = document.getElementById(progressId);
             if (!progress) return;
@@ -761,57 +1161,117 @@
                 soundsetsContainer.innerHTML = Object.entries(moods).map(([key, mood]) => `
                     <div class="soundset-card">
                         <h3 class="mood-title">${mood.title}</h3>
-                        <ul class="element-list">
-                            ${mood.samples.map(sample => `
-                                <li class="element-list-item" data-id="${sample._id}">
-                                    <div class="circular-progress">
-                                        <svg width="40" height="40">
-                                            <circle class="bg" cx="20" cy="20" r="17" />
-                                            <circle class="progress" id="progress-${sample._id}" cx="20" cy="20" r="17" 
-                                                    stroke-dasharray="106.8" stroke-dashoffset="106.8" />
-                                        </svg>
-                                    </div>
-                                    <input type="checkbox" class="element-checkbox" 
-                                           onchange="toggleSound(${JSON.stringify(sample).replace(/"/g, '&quot;')}, this.checked)">
-                                    <div class="element-info">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="mb-0">${sample.name}</h5>
-                                            <span class="badge bg-${sample.is_one_shot ? 'warning' : 'info'}">
-                                                ${sample.is_one_shot ? 'One-shot' : 'Loop'}
-                                            </span>
+                        
+                        ${mood.samples.length > 0 ? `
+                            <div class="section-title">
+                                <h4><i class="fas fa-sync"></i> Ambient Sounds</h4>
+                            </div>
+                            <ul class="element-list">
+                                ${mood.samples.map(sample => `
+                                    <li class="element-list-item" data-id="${sample._id}">
+                                        <div class="circular-progress">
+                                            <svg width="40" height="40">
+                                                <circle class="bg" cx="20" cy="20" r="17" />
+                                                <circle class="progress" id="progress-${sample._id}" cx="20" cy="20" r="17" 
+                                                        stroke-dasharray="106.8" stroke-dashoffset="106.8" />
+                                            </svg>
                                         </div>
-                                        <small class="text-muted">${sample.category}</small>
-                                    </div>
-                                    <div class="element-controls">
-                                        <div class="element-volume-container">
-                                            <input type="range" class="element-volume" 
-                                                   min="0" max="100" value="100"
-                                                   onchange="updateElementVolume('${sample._id}', this.value)">
+                                        <input type="checkbox" class="element-checkbox" 
+                                               onchange="toggleSound(${JSON.stringify(sample).replace(/"/g, '&quot;')}, this.checked)">
+                                        <div class="element-info">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="mb-0">${sample.name}</h5>
+                                                <span class="badge bg-info">Loop</span>
+                                            </div>
+                                            <small class="text-muted">${sample.category}</small>
                                         </div>
-                                        <div class="delay-range">
-                                            <input type="number" id="min-delay-${sample._id}" 
-                                                   value="${DEFAULT_MIN_DELAY}" min="1" max="1000"
-                                                   onchange="validateDelayRange('${sample._id}')">
-                                            <span>-</span>
-                                            <input type="number" id="max-delay-${sample._id}" 
-                                                   value="${DEFAULT_MAX_DELAY}" min="1" max="1000"
-                                                   onchange="validateDelayRange('${sample._id}')">
-                                            <span>sec</span>
+                                        <div class="element-controls">
+                                            <div class="element-volume-container">
+                                                <input type="range" class="element-volume" 
+                                                       min="0" max="100" value="100"
+                                                       onchange="updateElementVolume('${sample._id}', this.value)">
+                                            </div>
+                                            <div class="delay-range">
+                                                <input type="number" id="min-delay-${sample._id}" 
+                                                       value="${DEFAULT_MIN_DELAY}" min="1" max="1000"
+                                                       onchange="validateDelayRange('${sample._id}')">
+                                                <span>-</span>
+                                                <input type="number" id="max-delay-${sample._id}" 
+                                                       value="${DEFAULT_MAX_DELAY}" min="1" max="1000"
+                                                       onchange="validateDelayRange('${sample._id}')">
+                                                <span>sec</span>
+                                            </div>
+                                            <div class="element-time">
+                                                <span id="current-${sample._id}">0:00</span> / 
+                                                <span id="duration-${sample._id}">0:00</span>
+                                            </div>
+                                            <div class="element-actions">
+                                                <button class="btn btn-primary btn-icon" onclick="showEditModal('${sample._id}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-danger btn-icon" onclick="showDeleteConfirmation('${sample._id}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="element-time">
-                                            <span id="current-${sample._id}">0:00</span> / 
-                                            <span id="duration-${sample._id}">0:00</span>
+                                        <audio id="audio-${sample._id}" style="display: none;" preload="auto">
+                                            <source src="/api/audio/${sample.filename}" type="audio/mpeg">
+                                        </audio>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : ''}
+                        
+                        ${mood.oneShots.length > 0 ? `
+                            <div class="section-title">
+                                <h4><i class="fas fa-bolt"></i> One-Shot Sounds</h4>
+                            </div>
+                            <ul class="element-list">
+                                ${mood.oneShots.map(sample => `
+                                    <li class="element-list-item" data-id="${sample._id}">
+                                        <div class="circular-progress">
+                                            <svg width="40" height="40">
+                                                <circle class="bg" cx="20" cy="20" r="17" />
+                                                <circle class="progress" id="progress-${sample._id}" cx="20" cy="20" r="17" 
+                                                        stroke-dasharray="106.8" stroke-dashoffset="106.8" />
+                                            </svg>
                                         </div>
-                                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); showDeleteConfirmation('${sample._id}')">
-                                            <i class="fas fa-trash"></i>
+                                        <button class="btn btn-primary one-shot-button" onclick="toggleOneShot(${JSON.stringify(sample).replace(/"/g, '&quot;')})">
+                                            <i class="fas fa-play"></i>
                                         </button>
-                                    </div>
-                                    <audio id="audio-${sample._id}" style="display: none;" preload="auto">
-                                        <source src="/api/audio/${sample.filename}" type="audio/mpeg">
-                                    </audio>
-                                </li>
-                            `).join('')}
-                        </ul>
+                                        <div class="element-info">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="mb-0">${sample.name}</h5>
+                                                <span class="badge bg-warning">One-shot</span>
+                                            </div>
+                                            <small class="text-muted">${sample.category}</small>
+                                        </div>
+                                        <div class="element-controls">
+                                            <div class="element-volume-container">
+                                                <input type="range" class="element-volume" 
+                                                       min="0" max="100" value="100"
+                                                       onchange="updateElementVolume('${sample._id}', this.value)">
+                                            </div>
+                                            <div class="element-time">
+                                                <span id="current-${sample._id}">0:00</span> / 
+                                                <span id="duration-${sample._id}">0:00</span>
+                                            </div>
+                                            <div class="element-actions">
+                                                <button class="btn btn-primary btn-icon" onclick="showEditModal('${sample._id}')">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-danger btn-icon" onclick="showDeleteConfirmation('${sample._id}')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <audio id="audio-${sample._id}" style="display: none;" preload="auto">
+                                            <source src="/api/audio/${sample.filename}" type="audio/mpeg">
+                                        </audio>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        ` : ''}
                     </div>
                 `).join('');
                 
@@ -825,6 +1285,12 @@
                             currentTime.textContent = formatTime(audio.currentTime);
                         }
                         updateCircularProgress(audio, `progress-${id}`);
+                        
+                        // Only update playing sounds if not currently seeking
+                        const timeline = document.querySelector(`.playing-sound-item[data-id="${id}"] .playing-sound-timeline`);
+                        if (!timeline || !timeline.classList.contains('seeking')) {
+                            updatePlayingSounds();
+                        }
                     });
                     
                     audio.addEventListener('durationchange', () => {
@@ -861,6 +1327,21 @@
                             }
                         }
                         currentlyPlaying.delete(id);
+                        updatePlayingSounds();
+                    });
+
+                    audio.addEventListener('seeking', () => {
+                        const timeline = document.querySelector(`.playing-sound-item[data-id="${id}"] .playing-sound-timeline`);
+                        if (timeline) {
+                            timeline.classList.add('seeking');
+                        }
+                    });
+
+                    audio.addEventListener('seeked', () => {
+                        const timeline = document.querySelector(`.playing-sound-item[data-id="${id}"] .playing-sound-timeline`);
+                        if (timeline) {
+                            timeline.classList.remove('seeking');
+                        }
                         updatePlayingSounds();
                     });
                 });
@@ -913,13 +1394,33 @@
             }
         }
 
-        // Scene type to sample category mapping
+        // Enhanced scene type suggestions with more detailed categories and moods
         const sceneTypeSuggestions = {
-            'ambient': ['nature', 'wind', 'rain', 'forest', 'night'],
-            'battle': ['sword', 'combat', 'magic', 'fire', 'shout'],
-            'town': ['crowd', 'market', 'smith', 'tavern', 'street'],
-            'dungeon': ['drip', 'echo', 'creak', 'monster', 'footsteps'],
-            'custom': []
+            'ambient': {
+                keywords: ['nature', 'wind', 'rain', 'forest', 'night', 'ambient', 'atmosphere', 'environment'],
+                moods: ['peaceful', 'calm', 'serene', 'tranquil'],
+                description: 'Natural and environmental sounds that create atmosphere'
+            },
+            'battle': {
+                keywords: ['sword', 'combat', 'magic', 'fire', 'shout', 'battle', 'fight', 'war', 'weapon', 'spell'],
+                moods: ['intense', 'epic', 'dramatic', 'action'],
+                description: 'Combat and action sounds for intense scenes'
+            },
+            'town': {
+                keywords: ['crowd', 'market', 'smith', 'tavern', 'street', 'city', 'village', 'people', 'activity'],
+                moods: ['lively', 'busy', 'social', 'urban'],
+                description: 'Urban and social sounds for populated areas'
+            },
+            'dungeon': {
+                keywords: ['drip', 'echo', 'creak', 'monster', 'footsteps', 'dungeon', 'cave', 'underground', 'dark'],
+                moods: ['mysterious', 'eerie', 'tense', 'dark'],
+                description: 'Atmospheric sounds for underground and dark locations'
+            },
+            'custom': {
+                keywords: [],
+                moods: [],
+                description: 'Create your own custom scene'
+            }
         };
 
         function suggestSamples() {
@@ -931,16 +1432,54 @@
                 cb.checked = false;
             });
             
-            // Select samples that match the scene type
-            samplesCache.forEach(sample => {
+            // Get all samples that match the scene type
+            const matchingSamples = samplesCache.filter(sample => {
                 const sampleCategory = sample.category.toLowerCase();
-                if (suggestions.some(suggestion => sampleCategory.includes(suggestion))) {
-                    const checkbox = document.getElementById(`scene-sample-${sample._id}`);
-                    if (checkbox) checkbox.checked = true;
-                }
+                const sampleName = sample.name.toLowerCase();
+                
+                // Check if sample matches any keywords
+                return suggestions.keywords.some(keyword => 
+                    sampleCategory.includes(keyword) || sampleName.includes(keyword)
+                );
             });
-            
+
+            // Sort samples by relevance (number of keyword matches)
+            matchingSamples.sort((a, b) => {
+                const aMatches = suggestions.keywords.filter(keyword => 
+                    a.category.toLowerCase().includes(keyword) || 
+                    a.name.toLowerCase().includes(keyword)
+                ).length;
+                const bMatches = suggestions.keywords.filter(keyword => 
+                    b.category.toLowerCase().includes(keyword) || 
+                    b.name.toLowerCase().includes(keyword)
+                ).length;
+                return bMatches - aMatches;
+            });
+
+            // Select the most relevant samples (up to 5)
+            matchingSamples.slice(0, 5).forEach(sample => {
+                const checkbox = document.getElementById(`scene-sample-${sample._id}`);
+                if (checkbox) checkbox.checked = true;
+            });
+
+            // Update the selected samples list
             updateSelectedSamplesList();
+
+            // Show feedback about the suggestions
+            const feedback = document.createElement('div');
+            feedback.className = 'alert alert-info mt-3';
+            feedback.innerHTML = `
+                <strong>Suggested ${suggestions.description}</strong><br>
+                Selected ${matchingSamples.slice(0, 5).length} most relevant sounds.
+                ${matchingSamples.length > 5 ? `(${matchingSamples.length - 5} more available)` : ''}
+            `;
+            
+            // Remove any existing feedback
+            const existingFeedback = document.querySelector('.alert-info');
+            if (existingFeedback) existingFeedback.remove();
+            
+            // Add the new feedback
+            document.getElementById('sceneSamplesList').parentNode.appendChild(feedback);
         }
 
         function updateSelectedSamplesList() {
@@ -1140,6 +1679,79 @@
             } catch (error) {
                 console.error('Error deleting scene:', error);
                 alert('Error deleting scene. Please try again.');
+            }
+        }
+
+        function showEditModal(sampleId) {
+            const sample = samplesCache.find(s => s._id === sampleId);
+            if (!sample) {
+                alert('Error: Sample not found');
+                return;
+            }
+
+            // Validate sample data before populating the form
+            if (!sample.name || !sample.category) {
+                alert('Error: Invalid sample data');
+                return;
+            }
+
+            document.getElementById('editSampleId').value = sample._id;
+            document.getElementById('editName').value = sample.name;
+            document.getElementById('editCategory').value = sample.category;
+            document.getElementById('editIsOneShot').checked = sample.is_one_shot;
+
+            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        }
+
+        async function updateSample() {
+            const form = document.getElementById('editForm');
+            const sampleId = document.getElementById('editSampleId').value;
+            const name = document.getElementById('editName').value.trim();
+            const category = document.getElementById('editCategory').value;
+            
+            // Frontend validation
+            if (!sampleId) {
+                alert('Error: Sample ID is missing');
+                return;
+            }
+
+            if (!name) {
+                alert('Please enter a name for the sample');
+                return;
+            }
+
+            if (!category) {
+                alert('Please select a category');
+                return;
+            }
+
+            const sampleData = {
+                name: name,
+                category: category,
+                is_one_shot: document.getElementById('editIsOneShot').checked
+            };
+
+            try {
+                const response = await fetch(`/api/samples/${sampleId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(sampleData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    loadSamples(); // Reload the samples to show updated data
+                } else {
+                    alert(`Error updating sample: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error updating sample:', error);
+                alert('Error updating sample. Please try again.');
             }
         }
     </script>
