@@ -1158,8 +1158,20 @@
                 updatePlayingSounds();
                 playButton.classList.remove('active');
             } else {
-                // Stop all other sounds
-                stopAllSounds();
+                // Stop only other one-shot sounds
+                document.querySelectorAll('audio').forEach(otherAudio => {
+                    const otherId = otherAudio.id.split('-')[1];
+                    const otherSample = samplesCache.find(s => s._id === otherId);
+                    if (otherSample && otherSample.is_one_shot && otherId !== sample._id) {
+                        otherAudio.pause();
+                        otherAudio.currentTime = 0;
+                        currentlyPlaying.delete(otherId);
+                        const otherButton = document.querySelector(`.element-list-item[data-id="${otherId}"] .one-shot-button`);
+                        if (otherButton) {
+                            otherButton.classList.remove('active');
+                        }
+                    }
+                });
                 
                 // Set volume from the slider
                 const volumeSlider = audio.closest('.element-list-item').querySelector('.element-volume');
