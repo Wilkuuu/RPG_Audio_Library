@@ -7,31 +7,307 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .audio-card {
-            transition: transform 0.2s;
+        :root {
+            --primary-bg: #1a1a1a;
+            --secondary-bg: #2c3e50;
+            --accent-color: #3498db;
+            --text-color: #ecf0f1;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
         }
-        .audio-card:hover {
-            transform: scale(1.02);
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .playing {
-            background-color: #e3f2fd;
+
+        .navbar {
+            background-color: var(--secondary-bg) !important;
+            border-bottom: 2px solid var(--accent-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .soundset-card {
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .soundset-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .mood-section {
+            background: rgba(44, 62, 80, 0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .element-card {
+            background: var(--secondary-bg);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            cursor: default;
+        }
+
+        .element-card:hover {
+            background: var(--accent-color);
+        }
+
+        .element-card.playing {
+            background: var(--accent-color);
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+
+        .element-checkbox {
+            margin-right: 10px;
+        }
+
+        .element-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .element-list-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+
+        .element-list-item:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .element-list-item.playing {
+            background: rgba(52, 152, 219, 0.15);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .element-list-item .element-info {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+
+        .element-list-item .element-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 3;
+        }
+
+        .circular-progress .bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .circular-progress .progress {
+            stroke: var(--accent-color);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .element-volume {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .element-volume::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .element-volume::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .delay-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .delay-range input {
+            width: 60px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .element-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .element-time {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .master-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 20px;
+            z-index: 1000;
+            border-top: 2px solid var(--accent-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .master-volume-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .master-volume-slider {
+            flex-grow: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .master-volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .master-volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .playing-sounds {
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .playing-sound-item {
+            background: rgba(52, 152, 219, 0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .playing-sound-item:hover {
+            background: rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            border-radius: 6px;
+            padding: 8px 16px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            border: none;
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.4);
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">RPG Audio Manager</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="nav nav-tabs ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#" data-bs-toggle="tab" data-bs-target="#samples">Samples</a>
+                        <a class="nav-link active" id="soundsets-tab" data-bs-toggle="tab" href="#soundsets" role="tab">Soundsets</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="tab" data-bs-target="#scenes">Scenes</a>
+                        <a class="nav-link" id="scenes-tab" data-bs-toggle="tab" href="#scenes" role="tab">Scenes</a>
                     </li>
                 </ul>
             </div>
@@ -39,33 +315,23 @@
     </nav>
 
     <div class="container mt-4">
-        <div class="mb-3" id="audioPlayerContainer" style="display:none;">
-            <audio id="audioPlayer" controls style="width:100%">
-                Your browser does not support the audio element.
-            </audio>
-            <div class="d-flex justify-content-between">
-                <span id="audioCurrentTime">0:00</span>
-                <span id="audioDuration">0:00</span>
-                <button class="btn btn-secondary btn-sm" onclick="stopAudio()">Stop</button>
-            </div>
-        </div>
         <div class="tab-content">
-            <!-- Samples Tab -->
-            <div class="tab-pane fade show active" id="samples">
+            <!-- Soundsets Tab -->
+            <div class="tab-pane fade show active" id="soundsets" role="tabpanel">
                 <div class="row mb-4">
                     <div class="col">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadModal">
-                            <i class="fas fa-upload"></i> Upload Sample
+                            <i class="fas fa-upload"></i> Upload Sound
                         </button>
                     </div>
                 </div>
-                <div class="row" id="samplesList">
-                    <!-- Samples will be loaded here -->
+                <div id="soundsetsContainer">
+                    <!-- Soundsets will be loaded here -->
                 </div>
             </div>
 
             <!-- Scenes Tab -->
-            <div class="tab-pane fade" id="scenes">
+            <div class="tab-pane fade" id="scenes" role="tabpanel">
                 <div class="row mb-4">
                     <div class="col">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sceneModal">
@@ -80,31 +346,58 @@
         </div>
     </div>
 
+    <!-- Master Controls -->
+    <div class="master-controls">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="master-volume-container">
+                        <h5 class="mb-0">Master Volume</h5>
+                        <input type="range" class="master-volume-slider" id="masterVolume" min="0" max="100" value="100">
+                        <span id="masterVolumeValue">100%</span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <h5 class="mb-3">Currently Playing</h5>
+                    <div class="playing-sounds" id="playingSounds">
+                        <!-- Playing sounds will be listed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Upload Modal -->
     <div class="modal fade" id="uploadModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content bg-dark text-light">
                 <div class="modal-header">
-                    <h5 class="modal-title">Upload Audio Sample</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title">Upload Sound</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="uploadForm">
                         <div class="mb-3">
                             <label class="form-label">Name</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <input type="text" class="form-control bg-dark text-light" name="name" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Category</label>
-                            <input type="text" class="form-control" name="category">
+                            <select class="form-select bg-dark text-light" name="category" required>
+                                <option value="ambient">Ambient</option>
+                                <option value="battle">Battle</option>
+                                <option value="town">Town</option>
+                                <option value="dungeon">Dungeon</option>
+                                <option value="other">Other</option>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Audio File</label>
-                            <input type="file" class="form-control" name="file" accept=".mp3,.wav,.ogg" required>
+                            <label class="form-label">Sound File</label>
+                            <input type="file" class="form-control bg-dark text-light" name="file" accept=".mp3,.wav,.ogg" required>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" name="is_one_shot" id="isOneShot">
-                            <label class="form-check-label" for="isOneShot">One-shot sample</label>
+                            <label class="form-check-label" for="isOneShot">One-shot sound</label>
                         </div>
                     </form>
                 </div>
@@ -118,26 +411,51 @@
 
     <!-- Scene Modal -->
     <div class="modal fade" id="sceneModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-light">
                 <div class="modal-header">
                     <h5 class="modal-title">Create Scene</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="sceneForm">
                         <div class="mb-3">
                             <label class="form-label">Scene Name</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <input type="text" class="form-control bg-dark text-light" name="name" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Description</label>
-                            <textarea class="form-control" name="description"></textarea>
+                            <textarea class="form-control bg-dark text-light" name="description"></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Select Samples</label>
-                            <div id="sceneSamplesList">
-                                <!-- Available samples will be listed here -->
+                            <label class="form-label">Scene Type</label>
+                            <select class="form-select bg-dark text-light" name="scene_type" id="sceneType">
+                                <option value="ambient">Ambient</option>
+                                <option value="battle">Battle</option>
+                                <option value="town">Town</option>
+                                <option value="dungeon">Dungeon</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Sounds</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="suggestSamples()">
+                                            <i class="fas fa-magic"></i> AI Suggest Sounds
+                                        </button>
+                                    </div>
+                                    <div id="sceneSamplesList" class="border border-secondary p-2" style="max-height: 300px; overflow-y: auto;">
+                                        <!-- Available samples will be listed here -->
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Selected Sounds</h6>
+                                    <div id="selectedSamplesList" class="border border-secondary p-2" style="max-height: 300px; overflow-y: auto;">
+                                        <!-- Selected samples will be shown here -->
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -150,8 +468,137 @@
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this sample? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Scene Confirmation Modal -->
+    <div class="modal fade" id="deleteSceneModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete Scene</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this scene? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteSceneBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        let currentlyPlaying = new Map();
+        const masterVolume = document.getElementById('masterVolume');
+        const playingSounds = document.getElementById('playingSounds');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSamples();
+            loadScenes();
+            setupMasterVolume();
+        });
+
+        function setupMasterVolume() {
+            const masterVolume = document.getElementById('masterVolume');
+            masterVolume.addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                document.querySelectorAll('audio').forEach(audio => {
+                    audio.volume = volume;
+                });
+                // Update volume display
+                document.getElementById('masterVolumeValue').textContent = `${Math.round(e.target.value)}%`;
+            });
+        }
+
+        function updatePlayingSounds() {
+            playingSounds.innerHTML = Array.from(currentlyPlaying.entries())
+                .map(([id, name]) => `
+                    <div class="playing-sound-item">
+                        <span>${name}</span>
+                        <button class="btn btn-sm btn-danger" onclick="stopSound('${id}')">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                    </div>
+                `).join('');
+        }
+
+        function playSound(sample) {
+            const audio = document.getElementById(`audio-${sample._id}`);
+            if (audio) {
+                // Stop all other sounds if it's a one-shot
+                if (sample.is_one_shot) {
+                    document.querySelectorAll('audio').forEach(otherAudio => {
+                        if (otherAudio !== audio) {
+                            otherAudio.pause();
+                            otherAudio.currentTime = 0;
+                            const otherId = otherAudio.id.split('-')[1];
+                            document.querySelector(`.element-card[data-id="${otherId}"]`).classList.remove('playing');
+                        }
+                    });
+                }
+                
+                // Set volume from the slider
+                const volumeSlider = document.querySelector(`#audio-${sample._id}`).closest('.element-card').querySelector('.element-volume');
+                audio.volume = (volumeSlider ? volumeSlider.value : 100) / 100;
+                
+                // Play the audio
+                const playPromise = audio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        // Playback started successfully
+                        document.querySelector(`.element-card[data-id="${sample._id}"]`).classList.add('playing');
+                        currentlyPlaying.set(sample._id, sample.name);
+                        updatePlayingSounds();
+                    }).catch(error => {
+                        // Playback failed
+                        console.error('Playback failed:', error);
+                        document.querySelector(`.element-card[data-id="${sample._id}"]`).classList.remove('playing');
+                    });
+                }
+            }
+        }
+
+        function stopSound(sampleId) {
+            const audio = document.getElementById(`audio-${sampleId}`);
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0;
+                currentlyPlaying.delete(sampleId);
+                updatePlayingSounds();
+                document.querySelector(`.element-card[data-id="${sampleId}"]`).classList.remove('playing');
+            }
+        }
+
+        function stopAllSounds() {
+            document.querySelectorAll('audio').forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+            currentlyPlaying.clear();
+            updatePlayingSounds();
+        }
+
         // Global audio context
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         let currentAudio = null;
@@ -161,12 +608,6 @@
         const audioPlayerContainer = document.getElementById('audioPlayerContainer');
         const audioCurrentTime = document.getElementById('audioCurrentTime');
         const audioDuration = document.getElementById('audioDuration');
-
-        document.addEventListener('DOMContentLoaded', () => {
-            loadSamples();
-            loadScenes();
-            setupAudioPlayer();
-        });
 
         function setupAudioPlayer() {
             audioPlayer.addEventListener('timeupdate', () => {
@@ -193,34 +634,237 @@
             audioPlayerContainer.style.display = 'none';
         }
 
+        let sampleToDelete = null;
+
+        function showDeleteConfirmation(sampleId) {
+            sampleToDelete = sampleId;
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async function() {
+            if (sampleToDelete) {
+                await deleteSample(sampleToDelete);
+                bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                sampleToDelete = null;
+            }
+        });
+
+        function organizeSamplesByMood(samples) {
+            const moods = {
+                'ambient': { title: 'Ambient', samples: [] },
+                'battle': { title: 'Battle', samples: [] },
+                'town': { title: 'Town', samples: [] },
+                'dungeon': { title: 'Dungeon', samples: [] },
+                'other': { title: 'Other', samples: [] }
+            };
+
+            samples.forEach(sample => {
+                const category = sample.category.toLowerCase();
+                let mood = 'other';
+                
+                if (category.includes('ambient') || category.includes('nature')) mood = 'ambient';
+                else if (category.includes('battle') || category.includes('combat')) mood = 'battle';
+                else if (category.includes('town') || category.includes('city')) mood = 'town';
+                else if (category.includes('dungeon') || category.includes('cave')) mood = 'dungeon';
+
+                moods[mood].samples.push(sample);
+            });
+
+            return moods;
+        }
+
+        let activeSounds = new Map(); // Map to store active sound intervals
+        const DEFAULT_MIN_DELAY = 5;
+        const DEFAULT_MAX_DELAY = 400;
+
+        function toggleSound(sample, isChecked) {
+            const audio = document.getElementById(`audio-${sample._id}`);
+            if (!audio) return;
+
+            if (isChecked) {
+                // If it's a one-shot, stop other sounds
+                if (sample.is_one_shot) {
+                    stopAllSounds();
+                }
+
+                // Get delay range from inputs or use defaults
+                const minDelayInput = document.getElementById(`min-delay-${sample._id}`);
+                const maxDelayInput = document.getElementById(`max-delay-${sample._id}`);
+                const minDelay = minDelayInput ? parseInt(minDelayInput.value) || DEFAULT_MIN_DELAY : DEFAULT_MIN_DELAY;
+                const maxDelay = maxDelayInput ? parseInt(maxDelayInput.value) || DEFAULT_MAX_DELAY : DEFAULT_MAX_DELAY;
+
+                // Set volume from the slider
+                const volumeSlider = audio.closest('.element-list-item').querySelector('.element-volume');
+                audio.volume = (volumeSlider ? volumeSlider.value : 100) / 100;
+
+                // Function to play the sound with random delay
+                const playWithRandomDelay = () => {
+                    const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+                    setTimeout(() => {
+                        const checkbox = document.querySelector(`.element-list-item[data-id="${sample._id}"] .element-checkbox`);
+                        if (checkbox && checkbox.checked) {
+                            const playPromise = audio.play();
+                            if (playPromise !== undefined) {
+                                playPromise.then(() => {
+                                    currentlyPlaying.set(sample._id, sample.name);
+                                    updatePlayingSounds();
+                                    // Schedule next play only if it's not a one-shot
+                                    if (!sample.is_one_shot) {
+                                        playWithRandomDelay();
+                                    }
+                                }).catch(error => {
+                                    console.error('Playback failed:', error);
+                                    if (sample.is_one_shot) {
+                                        checkbox.checked = false;
+                                    }
+                                });
+                            }
+                        }
+                    }, delay * 1000); // Convert to milliseconds
+                };
+
+                // Start the random playback cycle
+                playWithRandomDelay();
+                activeSounds.set(sample._id, true);
+
+            } else {
+                // Stop the sound and clear any pending timeouts
+                audio.pause();
+                audio.currentTime = 0;
+                currentlyPlaying.delete(sample._id);
+                activeSounds.delete(sample._id);
+                updatePlayingSounds();
+            }
+        }
+
+        function updateCircularProgress(audio, progressId) {
+            const progress = document.getElementById(progressId);
+            if (!progress) return;
+            
+            const percent = (audio.currentTime / audio.duration) * 100;
+            const circumference = 2 * Math.PI * 17; // radius = 17
+            const offset = circumference - (percent / 100) * circumference;
+            
+            progress.style.strokeDashoffset = offset;
+        }
+
         async function loadSamples() {
             try {
                 const response = await fetch('/api/samples');
                 const samples = await response.json();
                 samplesCache = samples;
-                const samplesList = document.getElementById('samplesList');
-                samplesList.innerHTML = samples.map(sample => `
-                    <div class="col-md-4 mb-4">
-                        <div class="card audio-card">
-                            <div class="card-body">
-                                <h5 class="card-title">${sample.name}</h5>
-                                <p class="card-text">
-                                    Category: ${sample.category}<br>
-                                    Type: ${sample.is_one_shot ? 'One-shot' : 'Loop'}
-                                </p>
-                                <audio id="audio-${sample._id}" controls style="width:100%">
-                                    <source src="/api/audio/${sample.filename}" type="audio/mpeg">
-                                    Your browser does not support the audio element.
-                                </audio>
-                                <div class="d-flex justify-content-between mt-2">
-                                    <button class="btn btn-danger btn-sm" onclick="deleteSample('${sample._id}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                
+                const soundsetsContainer = document.getElementById('soundsetsContainer');
+                const moods = organizeSamplesByMood(samples);
+                
+                soundsetsContainer.innerHTML = Object.entries(moods).map(([key, mood]) => `
+                    <div class="soundset-card">
+                        <h3 class="mood-title">${mood.title}</h3>
+                        <ul class="element-list">
+                            ${mood.samples.map(sample => `
+                                <li class="element-list-item" data-id="${sample._id}">
+                                    <div class="circular-progress">
+                                        <svg width="40" height="40">
+                                            <circle class="bg" cx="20" cy="20" r="17" />
+                                            <circle class="progress" id="progress-${sample._id}" cx="20" cy="20" r="17" 
+                                                    stroke-dasharray="106.8" stroke-dashoffset="106.8" />
+                                        </svg>
+                                    </div>
+                                    <input type="checkbox" class="element-checkbox" 
+                                           onchange="toggleSound(${JSON.stringify(sample).replace(/"/g, '&quot;')}, this.checked)">
+                                    <div class="element-info">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0">${sample.name}</h5>
+                                            <span class="badge bg-${sample.is_one_shot ? 'warning' : 'info'}">
+                                                ${sample.is_one_shot ? 'One-shot' : 'Loop'}
+                                            </span>
+                                        </div>
+                                        <small class="text-muted">${sample.category}</small>
+                                    </div>
+                                    <div class="element-controls">
+                                        <div class="element-volume-container">
+                                            <input type="range" class="element-volume" 
+                                                   min="0" max="100" value="100"
+                                                   onchange="updateElementVolume('${sample._id}', this.value)">
+                                        </div>
+                                        <div class="delay-range">
+                                            <input type="number" id="min-delay-${sample._id}" 
+                                                   value="${DEFAULT_MIN_DELAY}" min="1" max="1000"
+                                                   onchange="validateDelayRange('${sample._id}')">
+                                            <span>-</span>
+                                            <input type="number" id="max-delay-${sample._id}" 
+                                                   value="${DEFAULT_MAX_DELAY}" min="1" max="1000"
+                                                   onchange="validateDelayRange('${sample._id}')">
+                                            <span>sec</span>
+                                        </div>
+                                        <div class="element-time">
+                                            <span id="current-${sample._id}">0:00</span> / 
+                                            <span id="duration-${sample._id}">0:00</span>
+                                        </div>
+                                        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); showDeleteConfirmation('${sample._id}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <audio id="audio-${sample._id}" style="display: none;" preload="auto">
+                                        <source src="/api/audio/${sample.filename}" type="audio/mpeg">
+                                    </audio>
+                                </li>
+                            `).join('')}
+                        </ul>
                     </div>
                 `).join('');
+                
+                // Setup audio event listeners
+                document.querySelectorAll('audio').forEach(audio => {
+                    const id = audio.id.split('-')[1];
+                    
+                    audio.addEventListener('timeupdate', () => {
+                        const currentTime = document.getElementById(`current-${id}`);
+                        if (currentTime) {
+                            currentTime.textContent = formatTime(audio.currentTime);
+                        }
+                        updateCircularProgress(audio, `progress-${id}`);
+                    });
+                    
+                    audio.addEventListener('durationchange', () => {
+                        const duration = document.getElementById(`duration-${id}`);
+                        if (duration) {
+                            duration.textContent = formatTime(audio.duration);
+                        }
+                    });
+                    
+                    audio.addEventListener('play', () => {
+                        const item = document.querySelector(`.element-list-item[data-id="${id}"]`);
+                        if (item) {
+                            item.classList.add('playing');
+                        }
+                    });
+                    
+                    audio.addEventListener('pause', () => {
+                        const item = document.querySelector(`.element-list-item[data-id="${id}"]`);
+                        if (item) {
+                            item.classList.remove('playing');
+                        }
+                    });
+                    
+                    audio.addEventListener('ended', () => {
+                        const item = document.querySelector(`.element-list-item[data-id="${id}"]`);
+                        if (item) {
+                            item.classList.remove('playing');
+                            const sample = samplesCache.find(s => s._id === id);
+                            if (sample && sample.is_one_shot) {
+                                const checkbox = item.querySelector('.element-checkbox');
+                                if (checkbox) {
+                                    checkbox.checked = false;
+                                }
+                            }
+                        }
+                        currentlyPlaying.delete(id);
+                        updatePlayingSounds();
+                    });
+                });
+                
                 populateSceneSamplesList();
             } catch (error) {
                 console.error('Error loading samples:', error);
@@ -251,35 +895,124 @@
         }
 
         async function deleteSample(sampleId) {
-            if (!confirm('Are you sure you want to delete this sample?')) return;
-
             try {
                 const response = await fetch(`/api/samples/${sampleId}`, {
                     method: 'DELETE'
                 });
 
+                const data = await response.json();
+                
                 if (response.ok) {
                     loadSamples();
                 } else {
-                    alert('Error deleting sample');
+                    alert(`Error deleting sample: ${data.error || 'Unknown error'}`);
                 }
             } catch (error) {
                 console.error('Error deleting sample:', error);
-                alert('Error deleting sample');
+                alert('Error deleting sample. Please try again.');
+            }
+        }
+
+        // Scene type to sample category mapping
+        const sceneTypeSuggestions = {
+            'ambient': ['nature', 'wind', 'rain', 'forest', 'night'],
+            'battle': ['sword', 'combat', 'magic', 'fire', 'shout'],
+            'town': ['crowd', 'market', 'smith', 'tavern', 'street'],
+            'dungeon': ['drip', 'echo', 'creak', 'monster', 'footsteps'],
+            'custom': []
+        };
+
+        function suggestSamples() {
+            const sceneType = document.getElementById('sceneType').value;
+            const suggestions = sceneTypeSuggestions[sceneType];
+            
+            // Clear current selections
+            document.querySelectorAll('input[name="scene_samples"]:checked').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Select samples that match the scene type
+            samplesCache.forEach(sample => {
+                const sampleCategory = sample.category.toLowerCase();
+                if (suggestions.some(suggestion => sampleCategory.includes(suggestion))) {
+                    const checkbox = document.getElementById(`scene-sample-${sample._id}`);
+                    if (checkbox) checkbox.checked = true;
+                }
+            });
+            
+            updateSelectedSamplesList();
+        }
+
+        function updateSelectedSamplesList() {
+            const selectedSamplesList = document.getElementById('selectedSamplesList');
+            const selectedSamples = Array.from(document.querySelectorAll('input[name="scene_samples"]:checked'))
+                .map(cb => {
+                    const sample = samplesCache.find(s => s._id === cb.value);
+                    return sample;
+                });
+
+            selectedSamplesList.innerHTML = selectedSamples.map(sample => `
+                <div class="d-flex align-items-center mb-2">
+                    <div class="flex-grow-1">
+                        <div>${sample.name}</div>
+                        <small class="text-muted">${sample.category}</small>
+                    </div>
+                    <div class="ms-2">
+                        <input type="range" class="form-range" min="0" max="100" value="100" 
+                               onchange="updateSampleVolume('${sample._id}', this.value)">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSampleVolume(sampleId, volume) {
+            const audioElement = document.getElementById(`audio-${sampleId}`);
+            if (audioElement) {
+                audioElement.volume = volume / 100;
             }
         }
 
         function populateSceneSamplesList() {
             const sceneSamplesList = document.getElementById('sceneSamplesList');
             if (!sceneSamplesList) return;
+            
             sceneSamplesList.innerHTML = samplesCache.map(sample => `
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="${sample._id}" id="scene-sample-${sample._id}" name="scene_samples">
+                    <input class="form-check-input" type="checkbox" value="${sample._id}" 
+                           id="scene-sample-${sample._id}" name="scene_samples"
+                           onchange="updateSelectedSamplesList()">
                     <label class="form-check-label" for="scene-sample-${sample._id}">
                         ${sample.name} (${sample.category})
                     </label>
                 </div>
             `).join('');
+        }
+
+        function updateElementVolume(sampleId, volume) {
+            const audio = document.getElementById(`audio-${sampleId}`);
+            if (audio) {
+                audio.volume = volume / 100;
+            }
+        }
+
+        function validateDelayRange(sampleId) {
+            const minInput = document.getElementById(`min-delay-${sampleId}`);
+            const maxInput = document.getElementById(`max-delay-${sampleId}`);
+            
+            let min = parseInt(minInput.value) || DEFAULT_MIN_DELAY;
+            let max = parseInt(maxInput.value) || DEFAULT_MAX_DELAY;
+            
+            // Ensure min is not greater than max
+            if (min > max) {
+                [min, max] = [max, min];
+            }
+            
+            // Ensure values are within bounds
+            min = Math.max(1, Math.min(1000, min));
+            max = Math.max(1, Math.min(1000, max));
+            
+            minInput.value = min;
+            maxInput.value = max;
         }
 
         async function loadScenes() {
@@ -292,10 +1025,18 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">${scene.name}</h5>
-                                <p class="card-text">${scene.description || ''}</p>
-                                <button class="btn btn-primary btn-sm" onclick="playScene('${scene._id}')">
-                                    <i class="fas fa-play"></i> Play Scene
-                                </button>
+                                <p class="card-text">
+                                    ${scene.description || ''}<br>
+                                    <small class="text-muted">Type: ${scene.type}</small>
+                                </p>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-primary btn-sm" onclick="playScene('${scene._id}')">
+                                        <i class="fas fa-play"></i> Play Scene
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" onclick="showDeleteSceneConfirmation('${scene._id}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -308,12 +1049,19 @@
         async function createScene() {
             const form = document.getElementById('sceneForm');
             const formData = new FormData(form);
-            const selectedSamples = Array.from(document.querySelectorAll('input[name="scene_samples"]:checked')).map(cb => cb.value);
+            const selectedSamples = Array.from(document.querySelectorAll('input[name="scene_samples"]:checked'))
+                .map(cb => ({
+                    id: cb.value,
+                    volume: 100
+                }));
+
             const sceneData = {
                 name: formData.get('name'),
                 description: formData.get('description'),
+                type: formData.get('scene_type'),
                 samples: selectedSamples
             };
+
             try {
                 const response = await fetch('/api/scenes', {
                     method: 'POST',
@@ -322,6 +1070,7 @@
                     },
                     body: JSON.stringify(sceneData)
                 });
+
                 if (response.ok) {
                     bootstrap.Modal.getInstance(document.getElementById('sceneModal')).hide();
                     form.reset();
@@ -336,17 +1085,61 @@
         }
 
         async function playScene(sceneId) {
-            const response = await fetch('/api/scenes');
-            const scenes = await response.json();
-            const scene = scenes.find(s => s._id === sceneId);
-            if (scene && scene.samples && scene.samples.length > 0) {
-                const sample = samplesCache.find(s => s._id === scene.samples[0]);
-                if (sample) {
-                    const audioElement = document.getElementById(`audio-${sample._id}`);
-                    if (audioElement) audioElement.play();
+            try {
+                const response = await fetch('/api/scenes');
+                const scenes = await response.json();
+                const scene = scenes.find(s => s._id === sceneId);
+                
+                if (scene && scene.samples && scene.samples.length > 0) {
+                    // Play all selected samples with their respective volumes
+                    scene.samples.forEach(sample => {
+                        const audioElement = document.getElementById(`audio-${sample.id}`);
+                        if (audioElement) {
+                            audioElement.volume = sample.volume / 100;
+                            audioElement.play();
+                        }
+                    });
+                } else {
+                    alert('No samples in this scene.');
                 }
-            } else {
-                alert('No samples in this scene.');
+            } catch (error) {
+                console.error('Error playing scene:', error);
+                alert('Error playing scene');
+            }
+        }
+
+        let sceneToDelete = null;
+
+        function showDeleteSceneConfirmation(sceneId) {
+            sceneToDelete = sceneId;
+            const deleteSceneModal = new bootstrap.Modal(document.getElementById('deleteSceneModal'));
+            deleteSceneModal.show();
+        }
+
+        document.getElementById('confirmDeleteSceneBtn').addEventListener('click', async function() {
+            if (sceneToDelete) {
+                await deleteScene(sceneToDelete);
+                bootstrap.Modal.getInstance(document.getElementById('deleteSceneModal')).hide();
+                sceneToDelete = null;
+            }
+        });
+
+        async function deleteScene(sceneId) {
+            try {
+                const response = await fetch(`/api/scenes/${sceneId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    loadScenes();
+                } else {
+                    alert(`Error deleting scene: ${data.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting scene:', error);
+                alert('Error deleting scene. Please try again.');
             }
         }
     </script>
