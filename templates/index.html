@@ -759,7 +759,16 @@
             });
         }
 
+        let lastUpdateTime = 0;
+        const UPDATE_INTERVAL = 500; // Only update every 500ms
+
         function updatePlayingSounds() {
+            const now = Date.now();
+            if (now - lastUpdateTime < UPDATE_INTERVAL) {
+                return; // Skip update if not enough time has passed
+            }
+            lastUpdateTime = now;
+
             playingSounds.innerHTML = Array.from(currentlyPlaying.entries())
                 .map(([id, name]) => {
                     const sample = samplesCache.find(s => s._id === id);
@@ -814,6 +823,8 @@
                 audio.play();
             } else {
                 audio.pause();
+                // Remove from active sounds to prevent auto-resume
+                activeSounds.delete(sampleId);
             }
             updatePlayingSounds();
         }
@@ -1063,17 +1074,19 @@
 
                 // Function to play the sound with random delay
                 const playWithRandomDelay = () => {
+                    if (!activeSounds.has(sample._id)) return; // Stop if sound was deactivated
+
                     const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
                     setTimeout(() => {
                         const checkbox = document.querySelector(`.element-list-item[data-id="${sample._id}"] .element-checkbox`);
-                        if (checkbox && checkbox.checked) {
+                        if (checkbox && checkbox.checked && activeSounds.has(sample._id)) {
                             const playPromise = audio.play();
                             if (playPromise !== undefined) {
                                 playPromise.then(() => {
                                     currentlyPlaying.set(sample._id, sample.name);
                                     updatePlayingSounds();
-                                    // Schedule next play only if it's not a one-shot
-                                    if (!sample.is_one_shot) {
+                                    // Schedule next play only if it's not a one-shot and still active
+                                    if (!sample.is_one_shot && activeSounds.has(sample._id)) {
                                         playWithRandomDelay();
                                     }
                                 }).catch(error => {
@@ -1088,8 +1101,8 @@
                 };
 
                 // Start the random playback cycle
-                playWithRandomDelay();
                 activeSounds.set(sample._id, true);
+                playWithRandomDelay();
 
             } else {
                 // Stop the sound and clear any pending timeouts
