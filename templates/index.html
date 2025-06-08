@@ -964,7 +964,16 @@
             // Stop the audio
             audio.pause();
             audio.currentTime = 0;
+            
+            // Remove from currently playing map
             currentlyPlaying.delete(sampleId);
+            
+            // Remove from active sounds if it's a looping sound
+            if (!sample.is_one_shot) {
+                activeSounds.delete(sampleId);
+            }
+            
+            // Update the UI
             updatePlayingSounds();
 
             // If it's a looping sound, uncheck the checkbox
@@ -979,6 +988,12 @@
                 if (button) {
                     button.classList.remove('active');
                 }
+            }
+
+            // Remove playing class from the list item
+            const listItem = document.querySelector(`.element-list-item[data-id="${sampleId}"]`);
+            if (listItem) {
+                listItem.classList.remove('playing');
             }
         }
 
