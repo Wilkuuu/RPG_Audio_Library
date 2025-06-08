@@ -869,6 +869,9 @@
             const audio = document.getElementById(`audio-${sampleId}`);
             if (!audio || !audio.duration) return;
 
+            const sample = samplesCache.find(s => s._id === sampleId);
+            if (!sample) return;
+
             const timeline = event.currentTarget;
             const rect = timeline.getBoundingClientRect();
             
@@ -898,9 +901,19 @@
 
             // If audio was playing, ensure it continues
             if (!audio.paused) {
-                audio.play().catch(error => {
-                    console.error('Error resuming playback:', error);
-                });
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.error('Error resuming playback:', error);
+                        // If it's a looping sound, make sure the checkbox stays checked
+                        if (!sample.is_one_shot) {
+                            const checkbox = document.querySelector(`.element-list-item[data-id="${sampleId}"] .element-checkbox`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        }
+                    });
+                }
             }
         }
 
@@ -1332,6 +1345,7 @@
                 // Setup audio event listeners
                 document.querySelectorAll('audio').forEach(audio => {
                     const id = audio.id.split('-')[1];
+                    setupAudioSeeking(audio, id);
                     
                     audio.addEventListener('timeupdate', () => {
                         const currentTime = document.getElementById(`current-${id}`);
@@ -1381,21 +1395,6 @@
                             }
                         }
                         currentlyPlaying.delete(id);
-                        updatePlayingSounds();
-                    });
-
-                    audio.addEventListener('seeking', () => {
-                        const timeline = document.querySelector(`.playing-sound-item[data-id="${id}"] .playing-sound-timeline`);
-                        if (timeline) {
-                            timeline.classList.add('seeking');
-                        }
-                    });
-
-                    audio.addEventListener('seeked', () => {
-                        const timeline = document.querySelector(`.playing-sound-item[data-id="${id}"] .playing-sound-timeline`);
-                        if (timeline) {
-                            timeline.classList.remove('seeking');
-                        }
                         updatePlayingSounds();
                     });
                 });
@@ -1807,6 +1806,40 @@
                 console.error('Error updating sample:', error);
                 alert('Error updating sample. Please try again.');
             }
+        }
+
+        // Add this function to handle audio seeking events
+        function setupAudioSeeking(audio, sampleId) {
+            const sample = samplesCache.find(s => s._id === sampleId);
+            if (!sample) return;
+
+            audio.addEventListener('seeking', () => {
+                const timeline = document.querySelector(`.playing-sound-item[data-id="${sampleId}"] .playing-sound-timeline`);
+                if (timeline) {
+                    timeline.classList.add('seeking');
+                }
+            });
+
+            audio.addEventListener('seeked', () => {
+                const timeline = document.querySelector(`.playing-sound-item[data-id="${sampleId}"] .playing-sound-timeline`);
+                if (timeline) {
+                    timeline.classList.remove('seeking');
+                }
+                // Ensure the sound continues playing if it's a looping sound
+                if (!sample.is_one_shot && !audio.paused) {
+                    const playPromise = audio.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.error('Error resuming playback after seeking:', error);
+                            // Keep the checkbox checked for looping sounds
+                            const checkbox = document.querySelector(`.element-list-item[data-id="${sampleId}"] .element-checkbox`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    }
+                }
+            });
         }
     </script>
 </body>
