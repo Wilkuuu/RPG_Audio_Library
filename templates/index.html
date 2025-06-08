@@ -796,10 +796,12 @@
                                 <div class="playing-sound-category">${sample ? sample.category : ''}</div>
                             </div>
                             <div class="playing-sound-buttons">
-                                <button class="playing-sound-button ${isPaused ? '' : 'active'}" 
-                                        onclick="togglePlayPause('${id}')">
-                                    <i class="fas fa-${isPaused ? 'play' : 'pause'}"></i>
-                                </button>
+                                ${!sample.is_one_shot ? `
+                                    <button class="playing-sound-button ${isPaused ? '' : 'active'}" 
+                                            onclick="togglePlayPause('${id}')">
+                                        <i class="fas fa-${isPaused ? 'play' : 'pause'}"></i>
+                                    </button>
+                                ` : ''}
                                 <button class="playing-sound-button danger" onclick="stopSound('${id}')">
                                     <i class="fas fa-stop"></i>
                                 </button>
@@ -819,14 +821,14 @@
                     // Only update the progress bar and time
                     const progressBar = soundItem.querySelector('.playing-sound-progress');
                     const timeDisplay = soundItem.querySelector('.playing-sound-time');
-                    const playButton = soundItem.querySelector('.playing-sound-button');
-                    const playIcon = playButton.querySelector('i');
+                    const playButton = soundItem.querySelector('.playing-sound-button:not(.danger)');
+                    const playIcon = playButton?.querySelector('i');
 
                     if (progressBar) progressBar.style.width = `${progress}%`;
                     if (timeDisplay) timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
-                    if (playButton) {
+                    if (playButton && !sample.is_one_shot) {
                         playButton.className = `playing-sound-button ${isPaused ? '' : 'active'}`;
-                        playIcon.className = `fas fa-${isPaused ? 'play' : 'pause'}`;
+                        if (playIcon) playIcon.className = `fas fa-${isPaused ? 'play' : 'pause'}`;
                     }
                 }
             });
